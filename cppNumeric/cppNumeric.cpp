@@ -13,6 +13,12 @@ double funcIFirst(double a, double b, double c, double x)
 	return (a * pow(x, 3))/3 + (b * pow(x,2))/2 + c*x;
 }
 
+//derivative of our function; c is deprecated in the case of parabola
+double funcDDeriv(double a, double b, double c, double x)
+{
+	return 2 * a*x + b;
+}
+
 //definite integral of our function
 double funcIntegralAnalytical(double a, double b, double c, double x1, double x2)
 {
@@ -32,9 +38,12 @@ void printCalcCompar(std::string calcType, double analyt, double numeric)
 int main()
 {
 	ncRightRects iCalcRR;
-	std::cout << "Input a,b,c,x1,x2,d\n";
-	double a, b, c, x1, x2, d;
-	std::cin >> a >> b >> c >> x1 >> x2 >> d;
+	ncTrapezoid iCalcTr;
+	ncSimpson iCalcSm;
+	ncDerivative iCalcDr;
+	std::cout << "Input a,b,c,x1,x2,d,derSP\n";
+	double a, b, c, x1, x2, d, dsp;
+	std::cin >> a >> b >> c >> x1 >> x2 >> d >> dsp;
 
 	double integAnalyt = funcIntegralAnalytical(a, b, c, x1, x2);
 	double integNumeric = 0;
@@ -56,14 +65,45 @@ int main()
 			break;
 		i++;
 		cp = (i*100 / n*100);
-		if (cp != cpl) std::cout << (float)cp/(float)100 << ": ["<<i <<"/" << n <<"]"<< "%\n";
+		if (cp != cpl) std::cout << (float)cp/(float)100 << "%: ["<<i <<"/" << n <<"]"<< "\n";
 		cpl = cp;
 	}
 
+	// ++ find defined integral ++
+	//Right Rectangles
 	//assign points to calculator
 	iCalcRR.assignVector(funcPts);
-	integNumeric = iCalcRR.getIntegral();
+	integNumeric = iCalcRR.getNumericValue();
 	printCalcCompar("Right Rectangles", integAnalyt, integNumeric);
+
+	//Trapezoid
+	//assign points to calculator
+	iCalcTr.assignVector(funcPts);
+	integNumeric = iCalcTr.getNumericValue();
+	printCalcCompar("Trapezoid", integAnalyt, integNumeric);
+
+	//Simpson
+	//assign points to calculator
+	iCalcSm.assignVector(funcPts);
+	integNumeric = iCalcSm.getNumericValue();
+	printCalcCompar("Simpson", integAnalyt, integNumeric);
+
+	//++ find derivative at a point ++
+
+	integAnalyt = funcDDeriv(a, b, c, dsp);
+
+	//by discrete values
+	//assign points to calculator
+	iCalcDr.assignVector(funcPts);
+	iCalcDr.setDerivativeSearchPoint(dsp);
+	integNumeric = iCalcDr.getNumericValue();
+	printCalcCompar("Discrete derivative", integAnalyt, integNumeric);
+
+	//by analytical function expression
+	iCalcDr.setBaseFunc(func);
+	iCalcDr.setDerivPrecision(d/10000);
+	integNumeric = iCalcDr.getDerivativeByFunction(a, b, c);
+	printCalcCompar("Semianalytical derivative", integAnalyt, integNumeric);
 
 	//end program
 	system("pause");
