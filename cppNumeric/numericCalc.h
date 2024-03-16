@@ -63,3 +63,40 @@ public:
 	double getDerivPrecision() { return derivPrecision; }
 	double getDerivativeByFunction(double a, double b, double c);
 };
+
+class ncBasicMin :public numericCalc
+{
+public:
+	double getNumericValue() override;
+	ncBasicMin() {};
+};
+
+class ncGoldenDiv :public numericCalc
+{
+private:
+	double(*baseFunc)(double, double, double, double);
+	double prec;
+	double x1, x2;
+	double a, b, c;
+	point minPt;
+public:
+	void printMyState(double ap, double bp, double gx1, double gx2, double y1, double y2, double min);
+	double getNumericValue() override;
+	ncGoldenDiv() { setPrecision(0.0001); };
+	void setBaseFunc(double(*bf)(double, double, double, double))
+	{
+		baseFunc = bf;
+	}
+	void setPrecision(double val) { prec = val; }
+	double getPrecision() { return prec; }
+	void setDiapason(double dx1, double dx2)
+	{
+		x1 = dx1; x2 = dx2;
+	}
+	double getX1() { return x1; }
+	double getX2() { return x2; }
+	void setFuncCoeffs(double ca, double cb, double cc)
+	{
+		a = ca; b = cb; c = cc;
+	};
+};

@@ -119,3 +119,62 @@ double ncDerivative::getDerivativeByFunction(double a, double b, double c)
 	double y2 = baseFunc(a, b, c, x2);
 	return (y2 - y1) / (x2 - x1);
 }
+
+double ncBasicMin::getNumericValue()
+{
+	int l = getDPSize();
+	double min = getDataPoint(0).y;
+	for (int i = 0; i < l; i++)
+	{
+		if (min > getDataPoint(i).y) min = getDataPoint(i).y;
+	}
+	clearDataPoints();
+	return min;
+}
+
+void ncGoldenDiv::printMyState(double ap, double bp, double gx1, double gx2, double y1, double y2, double min)
+{
+	std::cout << "Current GS state: a = " << ap << "; b = " << bp << "; gx1 = " << gx1 << "; gx2 = " << gx2 << "; y1 = " << y1 << "; y2 = " << y2 << "\n";
+}
+
+
+double ncGoldenDiv::getNumericValue()
+{
+	double av = getX1();
+	double bv = getX2();
+	double delta = bv - av;
+	double gx1 = av;
+	double gx2 = bv;
+	double y1 = baseFunc(a, b, c, gx1);
+	double y2 = baseFunc(a, b, c, gx2);
+	double eMin = 0;
+	minPt.x = eMin;
+	int keep = 0;
+	printMyState(av, bv, gx1, gx2, y1, y2, eMin);
+	while (abs(av - bv) > getPrecision())
+	{	
+		delta = bv - av;
+		if (keep==0||keep==1) gx1 = av + delta / 1.62;
+		if (keep==0||keep==2) gx2 = bv - delta / 1.62;
+		y1 = baseFunc(a, b, c, gx2);
+		y2 = baseFunc(a, b, c, gx1);
+		printMyState(av, bv, gx1, gx2, y1, y2, eMin);
+		if (y1 > y2) { 
+			av = gx2; 
+			eMin = gx1;
+			gx2 = gx1;
+			keep = 1;
+		}
+		else
+		{
+			bv = gx1;
+			eMin = gx2;
+			gx1 = gx2;
+			keep = 2;
+		}
+		
+	}
+	minPt.x = eMin;
+	minPt.y = baseFunc(a, b, c, eMin);
+	return minPt.y;
+}

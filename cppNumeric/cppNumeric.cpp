@@ -41,6 +41,8 @@ int main()
 	ncTrapezoid iCalcTr;
 	ncSimpson iCalcSm;
 	ncDerivative iCalcDr;
+	ncBasicMin iCalcMinSrc;
+	ncGoldenDiv iCalcMinGD;
 	std::cout << "Input a,b,c,x1,x2,d,derSP\n";
 	double a, b, c, x1, x2, d, dsp;
 	std::cin >> a >> b >> c >> x1 >> x2 >> d >> dsp;
@@ -104,6 +106,19 @@ int main()
 	iCalcDr.setDerivPrecision(d/10000);
 	integNumeric = iCalcDr.getDerivativeByFunction(a, b, c);
 	printCalcCompar("Semianalytical derivative", integAnalyt, integNumeric);
+
+	//++find function minimum++
+	//hard search
+	iCalcMinSrc.assignVector(funcPts);
+	integAnalyt = iCalcMinSrc.getNumericValue();
+
+	//golden section
+	iCalcMinGD.setBaseFunc(func);
+	iCalcMinGD.setFuncCoeffs(a, b, c);
+	iCalcMinGD.setPrecision(d);
+	iCalcMinGD.setDiapason(x1, x2);
+	integNumeric = iCalcMinGD.getNumericValue();
+	printCalcCompar("Golden Section Search min:", integAnalyt, integNumeric);
 
 	//end program
 	system("pause");
